@@ -5,11 +5,11 @@ public class Jude {
     public static void main(String[] args) {
         String line;
         Task[] list = new Task[] {};
-        System.out.print("""
+        System.out.println("""
                     ____________________________________________________________
                     Hello! I'm Jude
                     What can I do for you?
-                    ____________________________________________________________\n
+                    ____________________________________________________________
                 """);
 
         while (true) {
@@ -75,7 +75,7 @@ public class Jude {
             }
         }
 
-        System.out.print("""
+        System.out.println("""
                     ____________________________________________________________
                     Bye. Hope to see you again soon!
                     ____________________________________________________________
