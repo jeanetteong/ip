@@ -45,9 +45,9 @@ public class Jude {
                 System.out.printf("""
                             ____________________________________________________________
                             OK, I've marked this task as not done yet:
-                                [%s] %s
+                                %s
                             ____________________________________________________________\n
-                        """, selectedTask.getStatusIcon(), selectedTask.description);
+                        """, selectedTask.toString());
                 continue;
             }
 
@@ -59,9 +59,9 @@ public class Jude {
                 System.out.printf("""
                             ____________________________________________________________
                             Nice! I've marked this task as done:
-                                [%s] %s
+                                %s
                             ____________________________________________________________\n
-                        """, selectedTask.getStatusIcon(), selectedTask.description);
+                        """, selectedTask.toString());
             }
 
             // todo, event, deadline tasks
@@ -70,15 +70,22 @@ public class Jude {
 
                 // add todo items to tasks
                 if (action.equals("todo")) {
-                    String description = line.substring(5);
+                    String description = line.substring("todo ".length());
                     tasks[tasks.length - 1] = new Todo(description);
                 }
 
                 // add deadline items to tasks
                 else if (action.equals("deadline")) {
-                    String description = line.substring(9, line.indexOf(" /by"));
-                    String by = line.substring(line.indexOf("/by ") + 4);
+                    String description = line.substring("deadline ".length(), line.indexOf(" /by"));
+                    String by = line.substring(line.indexOf("/by ") + "/by ".length());
                     tasks[tasks.length - 1] = new Deadline(description, by);
+                }
+
+                else if (action.equals("event")) {
+                    String description = line.substring("event ".length(), line.indexOf(" /from"));
+                    String start = line.substring(line.indexOf("/from ") + "/from ".length(), line.indexOf(" /to"));
+                    String end = line.substring(line.indexOf("/to ") + "/to ".length());
+                    tasks[tasks.length - 1] = new Event(description, start, end);
                 }
 
                 System.out.printf("""
