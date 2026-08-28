@@ -64,11 +64,23 @@ public class Jude {
                         """, selectedTask.getStatusIcon(), selectedTask.description);
             }
 
-            // add todo items to tasks
-            else if (action.equals("todo")) {
-                String description = line.substring(5);
+            // todo, event, deadline tasks
+            else {
                 tasks = Arrays.copyOf(tasks, tasks.length + 1);
-                tasks[tasks.length - 1] = new Todo(description);
+
+                // add todo items to tasks
+                if (action.equals("todo")) {
+                    String description = line.substring(5);
+                    tasks[tasks.length - 1] = new Todo(description);
+                }
+
+                // add deadline items to tasks
+                else if (action.equals("deadline")) {
+                    String description = line.substring(9, line.indexOf(" /by"));
+                    String by = line.substring(line.indexOf("/by ") + 4);
+                    tasks[tasks.length - 1] = new Deadline(description, by);
+                }
+
                 System.out.printf("""
                             ____________________________________________________________
                             Got it. I've added this task:
@@ -76,6 +88,7 @@ public class Jude {
                             Now you have %d tasks in the list.
                             ____________________________________________________________\n
                         """, tasks[tasks.length - 1].toString(), tasks.length);
+
             }
         }
 
