@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Jude {
     public static void main(String[] args) {
         String line;
-        Task[] list = new Task[] {};
+        Task[] tasks = new Task[] {};
         System.out.println("""
                     ____________________________________________________________
                     Hello! I'm Jude
@@ -15,21 +15,22 @@ public class Jude {
         while (true) {
             Scanner in = new Scanner(System.in);
             line = in.nextLine();
+            String action = line.split(" ")[0];
 
             // exit
-            if (line.equals("bye")) {
+            if (action.equals("bye")) {
                 break;
             }
 
-            // print list
-            if (line.equals("list")) {
+            // print tasks
+            if (action.equals("list")) {
                 System.out.println("""
                             ____________________________________________________________
                             Here are the tasks in your list:
                         """);
                 int count = 1;
-                for (Task task : list) {
-                    System.out.printf("    %d.[%s] %s\n", count, task.getStatusIcon(), task.description);
+                for (Task task : tasks) {
+                    System.out.printf("    %d. %s\n", count, task.toString());
                     count++;
                 }
                 System.out.println("    ____________________________________________________________");
@@ -37,9 +38,9 @@ public class Jude {
             }
 
             // unmark tasks
-            else if (line.contains("unmark")) {
+            else if (action.equals("unmark")) {
                 int taskNo = Integer.parseInt(line.split(" ")[1]);
-                Task selectedTask = list[taskNo - 1];
+                Task selectedTask = tasks[taskNo - 1];
                 selectedTask.unMark();
                 System.out.printf("""
                             ____________________________________________________________
@@ -51,9 +52,9 @@ public class Jude {
             }
 
             // mark tasks as done
-            else if (line.contains("mark")) {
+            else if (action.equals("mark")) {
                 int taskNo = Integer.parseInt(line.split(" ")[1]);
-                Task selectedTask = list[taskNo - 1];
+                Task selectedTask = tasks[taskNo - 1];
                 selectedTask.markAsDone();
                 System.out.printf("""
                             ____________________________________________________________
@@ -63,15 +64,18 @@ public class Jude {
                         """, selectedTask.getStatusIcon(), selectedTask.description);
             }
 
-            // add items to list
-            else {
-                list = Arrays.copyOf(list, list.length + 1);
-                list[list.length - 1] = new Task(line);
+            // add todo items to tasks
+            else if (action.equals("todo")) {
+                String description = line.substring(5);
+                tasks = Arrays.copyOf(tasks, tasks.length + 1);
+                tasks[tasks.length - 1] = new Todo(description);
                 System.out.printf("""
                             ____________________________________________________________
-                            added: %s
+                            Got it. I've added this task:
+                                %s
+                            Now you have %d tasks in the list.
                             ____________________________________________________________\n
-                        """, line);
+                        """, tasks[tasks.length - 1].toString(), tasks.length);
             }
         }
 
