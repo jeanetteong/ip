@@ -1,5 +1,13 @@
+package jude;
+
 import java.util.Arrays;
 import java.util.Scanner;
+
+import jude.exception.JudeException;
+import jude.task.Deadline;
+import jude.task.Event;
+import jude.task.Task;
+import jude.task.Todo;
 
 public class Jude {
     public static void main(String[] args) {
@@ -71,7 +79,7 @@ public class Jude {
                     if (taskNo <= 0 || taskNo > tasks.length) {
                         throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
                     }
-                    
+
                     Task selectedTask = tasks[taskNo - 1];
                     selectedTask.markAsDone();
                     System.out.printf("""
@@ -90,36 +98,39 @@ public class Jude {
                         throw new JudeException("OOPS!!! The description of a " + action + " cannot be empty.");
                     }
 
-                    tasks = Arrays.copyOf(tasks, tasks.length + 1);
+                    Task newTask = null;
 
                     // add todo items to tasks
                     if (action.equals("todo")) {
                         String description = line.substring("todo ".length());
-                        tasks[tasks.length - 1] = new Todo(description);
+                        newTask = new Todo(description);
                     }
 
                     // add deadline items to tasks
                     else if (action.equals("deadline")) {
                         String description = line.substring("deadline ".length(), line.indexOf(" /by"));
                         String by = line.substring(line.indexOf("/by ") + "/by ".length());
-                        tasks[tasks.length - 1] = new Deadline(description, by);
+                        newTask = new Deadline(description, by);
                     }
 
                     else if (action.equals("event")) {
                         String description = line.substring("event ".length(), line.indexOf(" /from"));
                         String start = line.substring(line.indexOf("/from ") + "/from ".length(), line.indexOf(" /to"));
                         String end = line.substring(line.indexOf("/to ") + "/to ".length());
-                        tasks[tasks.length - 1] = new Event(description, start, end);
+                        newTask = new Event(description, start, end);
                     }
 
-                    System.out.printf("""
-                                ____________________________________________________________
-                                Got it. I've added this task:
-                                    %s
-                                Now you have %d tasks in the list.
-                                ____________________________________________________________\n
-                            """, tasks[tasks.length - 1].toString(), tasks.length);
-
+                    if (newTask != null) {
+                        tasks = Arrays.copyOf(tasks, tasks.length + 1);
+                        tasks[tasks.length - 1] = newTask;
+                        System.out.printf("""
+                                    ____________________________________________________________
+                                    Got it. I've added this task:
+                                        %s
+                                    Now you have %d tasks in the list.
+                                    ____________________________________________________________\n
+                                """, newTask.toString(), tasks.length);
+                    }
                 } else {
                     // invalid task
                     throw new JudeException("OOPS!!! I'm sorry, but I don't know what that means :-(");
