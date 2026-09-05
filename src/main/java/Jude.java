@@ -29,13 +29,19 @@ public class Jude {
                                 ____________________________________________________________
                                 Here are the tasks in your list:
                             """);
-                    int count = 1;
-                    for (Task task : tasks) {
-                        System.out.printf("    %d. %s\n", count, task.toString());
-                        count++;
+
+                    if (tasks.length == 0) {
+                        System.out.println("    <None>");
+                        System.out.println("    ____________________________________________________________");
+                    } else {
+                        int count = 1;
+                        for (Task task : tasks) {
+                            System.out.printf("    %d. %s\n", count, task.toString());
+                            count++;
+                        }
+                        System.out.println("    ____________________________________________________________");
+                        continue;
                     }
-                    System.out.println("    ____________________________________________________________");
-                    continue;
                 }
 
                 // unmark tasks
@@ -67,7 +73,7 @@ public class Jude {
 
                 // todo, event, deadline tasks
                 else if (action.equals("todo") || action.equals("deadline") || action.equals("event")) {
-                    
+
                     // check for empty task description
                     if (line.trim().equals(action)) {
                         throw new JudeException("OOPS!!! The description of a " + action + " cannot be empty.");
