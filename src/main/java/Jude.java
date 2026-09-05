@@ -47,6 +47,12 @@ public class Jude {
                 // unmark tasks
                 else if (action.equals("unmark")) {
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
+
+                    // check if task number exists
+                    if (taskNo <= 0 || taskNo > tasks.length) {
+                        throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
+                    }
+
                     Task selectedTask = tasks[taskNo - 1];
                     selectedTask.unMark();
                     System.out.printf("""
@@ -61,6 +67,11 @@ public class Jude {
                 // mark tasks as done
                 else if (action.equals("mark")) {
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
+
+                    if (taskNo <= 0 || taskNo > tasks.length) {
+                        throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
+                    }
+                    
                     Task selectedTask = tasks[taskNo - 1];
                     selectedTask.markAsDone();
                     System.out.printf("""
