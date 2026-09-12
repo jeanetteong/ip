@@ -83,6 +83,14 @@ public class Jude {
     }
 
     public static void main(String[] args) {
+        String banner = """
+                 _           _
+                | |_   _  __| | ___
+             _  | | | | |/ _` |/ _ \\
+            | |_| | |_| | (_| |  __/
+             \\___/ \\__,_|\\__,_|\\___|
+            """;
+        System.out.println(banner);
         String line;
         List<Task> tasks = new ArrayList<>();
         loadTasks(tasks);
