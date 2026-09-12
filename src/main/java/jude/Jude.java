@@ -1,5 +1,10 @@
 package jude;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,9 +16,77 @@ import jude.task.Task;
 import jude.task.Todo;
 
 public class Jude {
+    private static final String FILE_PATH = Paths.get("data", "jude.txt").toString();
+
+    private static void saveTasks(List<Task> tasks) {
+        try {
+            File file = new File(FILE_PATH);
+            // Ensure the parent directory exists
+            file.getParentFile().mkdirs();
+
+            FileWriter fw = new FileWriter(file);
+            for (Task task : tasks) {
+                // You will need to implement toFileFormat() in your Task classes
+                fw.write(task.toFileFormat() + System.lineSeparator());
+            }
+            fw.close();
+        } catch (IOException e) {
+            System.out.println("Something went wrong while saving: " + e.getMessage());
+        }
+    }
+
+    private static void loadTasks(List<Task> tasks) {
+        try {
+            File file = new File(FILE_PATH);
+            if (!file.exists()) {
+                return;
+            }
+            Scanner fileScanner = new Scanner(file);
+            while (fileScanner.hasNext()) {
+                String line = fileScanner.nextLine();
+                try {
+                    String[] parts = line.split(" \\| ");
+                    String type = parts[0];
+                    boolean isDone = parts[1].equals("1");
+                    String description = parts[2];
+
+                    Task task = null;
+
+                    if (type.equals("T")) {
+                        task = new Todo(description);
+                    } else if (type.equals("D")) {
+                        task = new Deadline(description, parts[3]);
+                    } else if (type.equals("E")) {
+                        // Assuming your event stores start and end times separately
+                        String timeString = parts[3]; 
+                        String[] times = timeString.split(" - ");
+                        String start = times[0];
+                        String end = times[1];
+                        task = new Event(description, start, end);
+                    }
+
+                    if (task != null) {
+                        if (isDone) {
+                            task.markAsDone();
+                        }
+                        tasks.add(task);
+                    }
+                } catch (Exception e) {
+                    // Skips corrupted lines (the Stretch Goal requirement)
+                    System.out.println("Skipping corrupted data: " + line);
+                }
+            }
+            fileScanner.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+    }
+
     public static void main(String[] args) {
         String line;
         List<Task> tasks = new ArrayList<>();
+        loadTasks(tasks);
+
         System.out.println("""
                     ____________________________________________________________
                     Hello! I'm Jude
@@ -64,6 +137,7 @@ public class Jude {
 
                     Task selectedTask = tasks.get(taskNo - 1);
                     selectedTask.unMark();
+                    saveTasks(tasks);
                     System.out.printf("""
                                 ____________________________________________________________
                                 OK, I've marked this task as not done yet:
@@ -83,6 +157,7 @@ public class Jude {
 
                     Task selectedTask = tasks.get(taskNo - 1);
                     selectedTask.markAsDone();
+                    saveTasks(tasks);
                     System.out.printf("""
                                 ____________________________________________________________
                                 Nice! I've marked this task as done:
@@ -101,13 +176,14 @@ public class Jude {
 
                     Task selectedTask = tasks.get(taskNo - 1);
                     tasks.remove(selectedTask);
+                    saveTasks(tasks);
                     System.out.printf("""
                                 ____________________________________________________________
                                 Noted. I've removed this task:
                                     %s
                                 Now you have %d tasks in the list.
                                 ____________________________________________________________\n
-                            """, selectedTask.toString(),tasks.size());
+                            """, selectedTask.toString(), tasks.size());
                 }
 
                 // todo, event, deadline tasks
@@ -142,6 +218,7 @@ public class Jude {
 
                     if (newTask != null) {
                         tasks.add(newTask);
+                        saveTasks(tasks);
                         System.out.printf("""
                                     ____________________________________________________________
                                     Got it. I've added this task:
