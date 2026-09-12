@@ -1,6 +1,7 @@
 package jude;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import jude.exception.JudeException;
@@ -12,7 +13,7 @@ import jude.task.Todo;
 public class Jude {
     public static void main(String[] args) {
         String line;
-        Task[] tasks = new Task[] {};
+        List<Task> tasks = new ArrayList<>();
         System.out.println("""
                     ____________________________________________________________
                     Hello! I'm Jude
@@ -20,8 +21,8 @@ public class Jude {
                     ____________________________________________________________
                 """);
 
+        Scanner in = new Scanner(System.in);
         while (true) {
-            Scanner in = new Scanner(System.in);
             line = in.nextLine();
             String action = line.split(" ")[0];
 
@@ -38,7 +39,7 @@ public class Jude {
                                 Here are the tasks in your list:
                             """);
 
-                    if (tasks.length == 0) {
+                    if (tasks.isEmpty()) {
                         System.out.println("    <None>");
                         System.out.println("    ____________________________________________________________");
                     } else {
@@ -57,11 +58,11 @@ public class Jude {
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
 
                     // check if task number exists
-                    if (taskNo <= 0 || taskNo > tasks.length) {
+                    if (taskNo <= 0 || taskNo > tasks.size()) {
                         throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
                     }
 
-                    Task selectedTask = tasks[taskNo - 1];
+                    Task selectedTask = tasks.get(taskNo - 1);
                     selectedTask.unMark();
                     System.out.printf("""
                                 ____________________________________________________________
@@ -76,11 +77,11 @@ public class Jude {
                 else if (action.equals("mark")) {
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
 
-                    if (taskNo <= 0 || taskNo > tasks.length) {
+                    if (taskNo <= 0 || taskNo > tasks.size()) {
                         throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
                     }
 
-                    Task selectedTask = tasks[taskNo - 1];
+                    Task selectedTask = tasks.get(taskNo - 1);
                     selectedTask.markAsDone();
                     System.out.printf("""
                                 ____________________________________________________________
@@ -88,6 +89,25 @@ public class Jude {
                                     %s
                                 ____________________________________________________________\n
                             """, selectedTask.toString());
+                }
+
+                // delete task
+                else if (action.equals("delete")) {
+                    int taskNo = Integer.parseInt(line.split(" ")[1]);
+
+                    if (taskNo <= 0 || taskNo > tasks.size()) {
+                        throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
+                    }
+
+                    Task selectedTask = tasks.get(taskNo - 1);
+                    tasks.remove(selectedTask);
+                    System.out.printf("""
+                                ____________________________________________________________
+                                Noted. I've removed this task:
+                                    %s
+                                Now you have %d tasks in the list.
+                                ____________________________________________________________\n
+                            """, selectedTask.toString(),tasks.size());
                 }
 
                 // todo, event, deadline tasks
@@ -121,15 +141,14 @@ public class Jude {
                     }
 
                     if (newTask != null) {
-                        tasks = Arrays.copyOf(tasks, tasks.length + 1);
-                        tasks[tasks.length - 1] = newTask;
+                        tasks.add(newTask);
                         System.out.printf("""
                                     ____________________________________________________________
                                     Got it. I've added this task:
                                         %s
                                     Now you have %d tasks in the list.
                                     ____________________________________________________________\n
-                                """, newTask.toString(), tasks.length);
+                                """, newTask.toString(), tasks.size());
                     }
                 } else {
                     // invalid task
@@ -160,6 +179,7 @@ public class Jude {
             }
         }
 
+        in.close();
         System.out.println("""
                     ____________________________________________________________
                     Bye. Hope to see you again soon!
