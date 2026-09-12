@@ -91,6 +91,25 @@ public class Jude {
                             """, selectedTask.toString());
                 }
 
+                // delete task
+                else if (action.equals("delete")) {
+                    int taskNo = Integer.parseInt(line.split(" ")[1]);
+
+                    if (taskNo <= 0 || taskNo > tasks.size()) {
+                        throw new JudeException("OOPS!!! Task number " + taskNo + " does not exist.");
+                    }
+
+                    Task selectedTask = tasks.get(taskNo - 1);
+                    tasks.remove(selectedTask);
+                    System.out.printf("""
+                                ____________________________________________________________
+                                Noted. I've removed this task:
+                                    %s
+                                Now you have %d tasks in the list.
+                                ____________________________________________________________\n
+                            """, selectedTask.toString(),tasks.size());
+                }
+
                 // todo, event, deadline tasks
                 else if (action.equals("todo") || action.equals("deadline") || action.equals("event")) {
 
