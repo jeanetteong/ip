@@ -1,7 +1,6 @@
 package jude;
 
 import java.nio.file.Paths;
-import java.util.List;
 
 import jude.exception.JudeException;
 import jude.task.Deadline;
@@ -9,6 +8,9 @@ import jude.task.Event;
 import jude.task.Task;
 import jude.task.Todo;
 
+/**
+ * The main class for the Jude task management application.
+ */
 public class Jude {
 
     private static final String CMD_BYE = "bye";
@@ -25,12 +27,20 @@ public class Jude {
     private TaskList tasks;
     private Ui ui;
 
+    /**
+     * Constructs a Jude application with the specified file path for storage.
+     *
+     * @param filePath The path to the file where tasks will be saved and loaded from.
+     */
     public Jude(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
         tasks = new TaskList(storage.load());
     }
 
+    /**
+     * Starts the application and handles the main event loop for processing user commands.
+     */
     public void run() {
         ui.showWelcome();
         boolean isExit = false;
@@ -136,6 +146,11 @@ public class Jude {
         ui.close();
     }
 
+    /**
+     * The main entry point for the Jude application.
+     *
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         String filePath = Paths.get("data", "jude.txt").toString();
         new Jude(filePath).run();

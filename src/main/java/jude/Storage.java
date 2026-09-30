@@ -13,6 +13,9 @@ import jude.task.Event;
 import jude.task.Task;
 import jude.task.Todo;
 
+/**
+ * Handles the loading and saving of tasks to a file.
+ */
 public class Storage {
     private String filePath;
 
@@ -23,10 +26,20 @@ public class Storage {
     private static final String EVENT_TIME_DELIMITER = " - ";
     private static final String IS_DONE_FLAG = "1";
 
+    /**
+     * Constructs a Storage object with the specified file path.
+     *
+     * @param filePath The path to the file where tasks are saved and loaded from.
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Loads the tasks from the file.
+     *
+     * @return A list of tasks loaded from the file.
+     */
     public List<Task> load() {
         List<Task> tasks = new ArrayList<>();
         try {
@@ -53,6 +66,11 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves the given list of tasks to the file.
+     *
+     * @param taskList The list of tasks to be saved.
+     */
     public void save(TaskList taskList) {
         try {
             File file = new File(filePath);
@@ -69,6 +87,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a task from its string representation in the file.
+     *
+     * @param line The string representation of the task.
+     * @return The parsed Task object.
+     * @throws Exception If there is an error parsing the string.
+     */
     private Task parseTaskFromString(String line) throws Exception {
         String[] parts = line.split(FILE_DELIMITER);
         String type = parts[0];
