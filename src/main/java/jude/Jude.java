@@ -16,23 +16,72 @@ import jude.task.Task;
 import jude.task.Todo;
 
 public class Jude {
+    private static final String TODO_TYPE = "T";
+    private static final String DEADLINE_TYPE = "D";
+    private static final String EVENT_TYPE = "E";
+
+    private static final String CMD_BYE = "bye";
+    private static final String CMD_LIST = "list";
+    private static final String CMD_UNMARK = "unmark";
+    private static final String CMD_MARK = "mark";
+    private static final String CMD_DELETE = "delete";
+    private static final String CMD_TODO = "todo";
+    private static final String CMD_DEADLINE = "deadline";
+    private static final String CMD_EVENT = "event";
+
+    private static final String BY_PREFIX_WITH_SPACE = " /by";
+    private static final String BY_PREFIX = "/by ";
+    private static final String FROM_PREFIX_WITH_SPACE = " /from";
+    private static final String FROM_PREFIX = "/from ";
+    private static final String TO_PREFIX_WITH_SPACE = " /to";
+    private static final String TO_PREFIX = "/to ";
+
+    private static final String FILE_DELIMITER = " \\| ";
+    private static final String EVENT_TIME_DELIMITER = " - ";
+    private static final String IS_DONE_FLAG = "1";
+
     private static final String FILE_PATH = Paths.get("data", "jude.txt").toString();
 
     private static void saveTasks(List<Task> tasks) {
         try {
             File file = new File(FILE_PATH);
-            // Ensure the parent directory exists
             file.getParentFile().mkdirs();
 
             FileWriter fw = new FileWriter(file);
             for (Task task : tasks) {
-                // You will need to implement toFileFormat() in your Task classes
                 fw.write(task.toFileFormat() + System.lineSeparator());
             }
             fw.close();
         } catch (IOException e) {
             System.out.println("Something went wrong while saving: " + e.getMessage());
         }
+    }
+
+    private static Task parseTaskFromString(String line) throws Exception {
+        String[] parts = line.split(FILE_DELIMITER);
+        String type = parts[0];
+        boolean isDone = parts[1].equals(IS_DONE_FLAG);
+        String description = parts[2];
+
+        Task task = null;
+
+        if (type.equals(TODO_TYPE)) {
+            task = new Todo(description);
+        } else if (type.equals(DEADLINE_TYPE)) {
+            task = new Deadline(description, parts[3]);
+        } else if (type.equals(EVENT_TYPE)) {
+            String timeString = parts[3];
+            String[] times = timeString.split(EVENT_TIME_DELIMITER);
+            String start = times[0];
+            String end = times[1];
+            task = new Event(description, start, end);
+        }
+
+        if (task != null && isDone) {
+            task.markAsDone();
+        }
+
+        return task;
     }
 
     private static void loadTasks(List<Task> tasks) {
@@ -45,34 +94,11 @@ public class Jude {
             while (fileScanner.hasNext()) {
                 String line = fileScanner.nextLine();
                 try {
-                    String[] parts = line.split(" \\| ");
-                    String type = parts[0];
-                    boolean isDone = parts[1].equals("1");
-                    String description = parts[2];
-
-                    Task task = null;
-
-                    if (type.equals("T")) {
-                        task = new Todo(description);
-                    } else if (type.equals("D")) {
-                        task = new Deadline(description, parts[3]);
-                    } else if (type.equals("E")) {
-                        // Assuming your event stores start and end times separately
-                        String timeString = parts[3]; 
-                        String[] times = timeString.split(" - ");
-                        String start = times[0];
-                        String end = times[1];
-                        task = new Event(description, start, end);
-                    }
-
+                    Task task = parseTaskFromString(line);
                     if (task != null) {
-                        if (isDone) {
-                            task.markAsDone();
-                        }
                         tasks.add(task);
                     }
                 } catch (Exception e) {
-                    // Skips corrupted lines (the Stretch Goal requirement)
                     System.out.println("Skipping corrupted data: " + line);
                 }
             }
@@ -84,12 +110,12 @@ public class Jude {
 
     public static void main(String[] args) {
         String banner = """
-                 _           _
-                | |_   _  __| | ___
-             _  | | | | |/ _` |/ _ \\
-            | |_| | |_| | (_| |  __/
-             \\___/ \\__,_|\\__,_|\\___|
-            """;
+                     _           _
+                    | |_   _  __| | ___
+                 _  | | | | |/ _` |/ _ \\
+                | |_| | |_| | (_| |  __/
+                 \\___/ \\__,_|\\__,_|\\___|
+                """;
         System.out.println(banner);
         String line;
         List<Task> tasks = new ArrayList<>();
@@ -109,12 +135,12 @@ public class Jude {
 
             try {
                 // exit
-                if (action.equals("bye")) {
+                if (action.equals(CMD_BYE)) {
                     break;
                 }
 
                 // print tasks
-                if (action.equals("list")) {
+                if (action.equals(CMD_LIST)) {
                     System.out.println("""
                                 ____________________________________________________________
                                 Here are the tasks in your list:
@@ -132,10 +158,7 @@ public class Jude {
                         System.out.println("    ____________________________________________________________");
                         continue;
                     }
-                }
-
-                // unmark tasks
-                else if (action.equals("unmark")) {
+                } else if (action.equals(CMD_UNMARK)) { // unmark tasks
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
 
                     // check if task number exists
@@ -153,10 +176,7 @@ public class Jude {
                                 ____________________________________________________________\n
                             """, selectedTask.toString());
                     continue;
-                }
-
-                // mark tasks as done
-                else if (action.equals("mark")) {
+                } else if (action.equals(CMD_MARK)) { // mark tasks as done
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
 
                     if (taskNo <= 0 || taskNo > tasks.size()) {
@@ -172,10 +192,7 @@ public class Jude {
                                     %s
                                 ____________________________________________________________\n
                             """, selectedTask.toString());
-                }
-
-                // delete task
-                else if (action.equals("delete")) {
+                } else if (action.equals(CMD_DELETE)) { // delete task
                     int taskNo = Integer.parseInt(line.split(" ")[1]);
 
                     if (taskNo <= 0 || taskNo > tasks.size()) {
@@ -192,11 +209,7 @@ public class Jude {
                                 Now you have %d tasks in the list.
                                 ____________________________________________________________\n
                             """, selectedTask.toString(), tasks.size());
-                }
-
-                // todo, event, deadline tasks
-                else if (action.equals("todo") || action.equals("deadline") || action.equals("event")) {
-
+                } else if (action.equals(CMD_TODO) || action.equals(CMD_DEADLINE) || action.equals(CMD_EVENT)) { // todo, event, deadline tasks
                     // check for empty task description
                     if (line.trim().equals(action)) {
                         throw new JudeException("OOPS!!! The description of a " + action + " cannot be empty.");
@@ -205,22 +218,18 @@ public class Jude {
                     Task newTask = null;
 
                     // add todo items to tasks
-                    if (action.equals("todo")) {
+                    if (action.equals(CMD_TODO)) {
                         String description = line.substring("todo ".length());
                         newTask = new Todo(description);
-                    }
-
-                    // add deadline items to tasks
-                    else if (action.equals("deadline")) {
-                        String description = line.substring("deadline ".length(), line.indexOf(" /by"));
-                        String by = line.substring(line.indexOf("/by ") + "/by ".length());
+                    } else if (action.equals(CMD_DEADLINE)) { // add deadline items to tasks
+                        String description = line.substring("deadline ".length(), line.indexOf(BY_PREFIX_WITH_SPACE));
+                        String by = line.substring(line.indexOf(BY_PREFIX) + BY_PREFIX.length());
                         newTask = new Deadline(description, by);
-                    }
-
-                    else if (action.equals("event")) {
-                        String description = line.substring("event ".length(), line.indexOf(" /from"));
-                        String start = line.substring(line.indexOf("/from ") + "/from ".length(), line.indexOf(" /to"));
-                        String end = line.substring(line.indexOf("/to ") + "/to ".length());
+                    } else if (action.equals(CMD_EVENT)) {
+                        String description = line.substring("event ".length(), line.indexOf(FROM_PREFIX_WITH_SPACE));
+                        String start = line.substring(line.indexOf(FROM_PREFIX) + FROM_PREFIX.length(),
+                                line.indexOf(TO_PREFIX_WITH_SPACE));
+                        String end = line.substring(line.indexOf(TO_PREFIX) + TO_PREFIX.length());
                         newTask = new Event(description, start, end);
                     }
 
