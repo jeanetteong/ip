@@ -40,4 +40,11 @@ public class Parser {
         String end = command.substring(command.indexOf(TO_PREFIX) + TO_PREFIX.length());
         return new String[]{description, start, end};
     }
+
+    public static String parseFindKeyword(String command) throws JudeException {
+        if (command.trim().equals("find")) {
+            throw new JudeException("OOPS!!! The search keyword cannot be empty.");
+        }
+        return command.substring("find ".length());
+    }
 }

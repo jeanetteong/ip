@@ -1,6 +1,7 @@
 package jude;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 import jude.exception.JudeException;
 import jude.task.Deadline;
@@ -18,6 +19,7 @@ public class Jude {
     private static final String CMD_TODO = "todo";
     private static final String CMD_DEADLINE = "deadline";
     private static final String CMD_EVENT = "event";
+    private static final String CMD_FIND = "find";
 
     private Storage storage;
     private TaskList tasks;
@@ -100,6 +102,25 @@ public class Jude {
                         storage.save(tasks);
                         ui.showMessage("Got it. I've added this task:\n    " + newTask.toString()
                                 + "\nNow you have " + tasks.size() + " tasks in the list.");
+                    }
+                } else if (action.equals(CMD_FIND)) {
+                    String keyword = Parser.parseFindKeyword(line);
+                    StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
+                    boolean hasMatch = false;
+
+                    for (int i = 0; i < tasks.size(); i++) {
+                        Task currentTask = tasks.get(i);
+                        if (currentTask.toString().contains(keyword)) {
+                            hasMatch = true;
+                            sb.append("    ").append(i + 1).append(". ").append(currentTask.toString()).append("\n");
+                        }
+                    }
+
+                    if (!hasMatch) {
+                        ui.showMessage("No matching tasks found.");
+                    } else {
+                        sb.setLength(sb.length() - 1);
+                        ui.showMessage(sb.toString());
                     }
                 } else {
                     throw new JudeException("OOPS!!! I'm sorry, but I don't know what that means :-(");
